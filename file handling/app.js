@@ -6,6 +6,7 @@ app.get("/", (req, res) => {
   res.send("Hello this is my first fs module page");
 });
 
+// Callback APIs
 // create file
 app.get("/create", (req, res) => {
   fs.writeFile(
@@ -77,6 +78,13 @@ app.get('/delete-folder', (req, res) => {
         if(err) res.send(err);
         else res.redirect('/');
     })
+})
+
+// Syncronous APIs
+app.get('/create-sync-folder', (req, res) => {
+  fs.mkdirSync('syncFiles', {recursive: true});
+  fs.writeFileSync(`./syncFiles/first.txt`, "This is syncronous file");
+  res.send('File inside folder is created');
 })
 
 app.listen(3000, () => {
