@@ -188,4 +188,9 @@ app.get('/in', async (req, res) => {
   res.send(user);
 })
 
+app.get('/in', async (req, res) => {
+  const user = await userModel.find({age : {$in : [27, 26, 19, 30]}});
+  res.send(user);
+})
+
 app.listen(3000);
