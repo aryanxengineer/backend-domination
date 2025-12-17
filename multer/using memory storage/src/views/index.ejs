@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+    <main class="w-full h-screen bg-gray-700 flex justify-center items-center">
+        <form action="/upload-image" method="POST" enctype="multipart/form-data" class="bg-white p-6 rounded shadow-md">
+            <div class="mb-4">
+                <label for="file" class="block text-gray-700 text-sm font-bold mb-2">Choose a file to upload:</label>
+                <input type="file" name="file" id="file" class="border rounded w-full py-2 px-3 text-gray-700">
+            </div>
+            <div>
+                <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    Upload File
+                </button>
+            </div>
+        </form>
+    </main>
+</body>
+</html>
