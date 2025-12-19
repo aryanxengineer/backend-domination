@@ -18,6 +18,8 @@ app.post("/new-user", async (req, res) => {
 
   let newUser = await UserModel.create({ username, email });
 
+  client.del("user:profile:*");
+
   return res.json({
     message: "User created successfully",
     user: newUser,
@@ -26,7 +28,21 @@ app.post("/new-user", async (req, res) => {
 
 app.get("/user/:id", async (req, res) => {
   const { id } = req.params;
+
+  let cachedUser = await client.get(`user:profile:${id}`);
+
+  if (cachedUser) {
+    return res.json({
+      message: "User fetched successfully (from cache)",
+      user: JSON.parse(cachedUser),
+    })
+  }
+
+
   let user = await UserModel.findById(id);
+
+  // client.set(`user:profile:${id}`, JSON.stringify(user));
+  client.setEx(`user:profile:${id}`, 3600, JSON.stringify(user));
 
   return res.json({
     message: "User fetched successfully",

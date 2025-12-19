@@ -1,0 +1,29 @@
+{
+  "name": "socketio",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc && xcopy src\\views dist\\views /E /I /Y && xcopy src\\public dist\\public /E /I /Y",
+    "dev": "npm-run-all --parallel watch:ts server",
+    "watch:ts": "tsc --watch",
+    "server": "nodemon ./dist/server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "ejs": "^3.1.10",
+    "express": "^5.2.1",
+    "socket.io": "^4.8.1"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.0.3",
+    "nodemon": "^3.1.11",
+    "npm-run-all": "^4.1.5",
+    "typescript": "^5.9.3"
+  }
+}
