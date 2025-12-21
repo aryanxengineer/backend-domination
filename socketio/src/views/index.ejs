@@ -2,13 +2,51 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Learning Socket IO</title>
+    <title>Socket.IO Test</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+      }
+      #status {
+        font-weight: bold;
+        color: green;
+      }
+    </style>
   </head>
   <body>
+    <h2>Socket.IO Connection Test</h2>
+
+    <!-- Socket.IO client (VERY IMPORTANT) -->
     <script src="/socket.io/socket.io.js"></script>
+
     <script>
       const socket = io();
+
+
+
+
+
+
+
+
+      // This is all about emitting from client and server and how to broadcast the event.
+
+      // socket.on("connect", () => {
+      //   console.log("client connected with server");
+      //   socket.emit("client-message", {
+      //     message: "Hello from client",
+      //   });
+
+      //   socket.on("messageReceived", (data) => {
+      //     console.log("message aa gaya server se");
+      //   });
+
+      //   socket.emit("typing");
+      //   socket.on("typing", () => {
+      //     console.log("user is typing");
+      //   })
+      // });
     </script>
   </body>
 </html>
