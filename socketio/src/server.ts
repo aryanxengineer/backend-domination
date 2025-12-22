@@ -2,21 +2,29 @@
 import { createServer } from "http";
 import { Server } from "socket.io";
 import app from "./index.js";
+import { log } from "console";
 
 const httpServer = createServer(app);
 
 const io = new Server(httpServer);
 
 io.on("connection", (socket) => {
-  console.log("✅ User connected:", socket.id);
+  log("connected")
+
+  // custon event handling using socket io
+  // socket.on("custom-event", (data) => {
+  //   log("Custom event received:", data);
+  //   socket.emit("custom-response", { message: "Hello from server!" });
+  // })
 
   // This is how we are creating rooms using socket io
-  socket.join("room1")
-  socket._cleanup()
-  socket._error('error related socket');
-  socket._onclose("forced close", 'client close this forcefully');
+  // socket.join("room1")
+  // socket._cleanup()
+  // socket._error('error related socket');
+  // socket._onclose("forced close", 'client close this forcefully');
 
 
+  // connect and disconnect using buttons
 
 
 

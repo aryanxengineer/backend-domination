@@ -17,18 +17,37 @@
   <body>
     <h2>Socket.IO Connection Test</h2>
 
+    <!-- <button id="sendCustomEvent">send custom event</button> -->
+
+    <!-- <button id="connectBtn">connect to server</button>
+    <button id="disconnectBtn">Disconnect to server</button> -->
+
     <!-- Socket.IO client (VERY IMPORTANT) -->
     <script src="/socket.io/socket.io.js"></script>
 
     <script>
-      const socket = io();
+      let socket = io();
 
+      // Sending custom events from client using buttons
+      // const sendCustomEventBtn = document.querySelector("#sendCustomEvent");
+      // sendCustomEventBtn.addEventListener("click", () => {
+      //   socket.emit("custom-event", {
+      //     message: "This is a custom event from client",
+      //   });
+      //   socket.on("custom-response", (data) => {
+      //     console.log("Response from server:", data);
+      //   });
+      // });
 
-
-
-
-
-
+      // connection and disconnection using buttons
+      // const connectBtn = document.querySelector("#connectBtn");
+      // const disconnectBtn = document.querySelector("#disconnectBtn");
+      // connectBtn.addEventListener("click", () => {
+      //   socket = io();
+      // });
+      // disconnectBtn.addEventListener("click", () => {
+      //   socket.disconnect();
+      // });
 
       // This is all about emitting from client and server and how to broadcast the event.
 
