@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>1-on-1 Video Call</title>
+
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+      @keyframes pulse-soft {
+        0% {
+          box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4);
+        }
+        70% {
+          box-shadow: 0 0 0 20px rgba(99, 102, 241, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(99, 102, 241, 0);
+        }
+      }
+      .pulse-ring {
+        animation: pulse-soft 2s infinite;
+      }
+    </style>
+  </head>
+
+  <body
+    class="bg-slate-900 h-screen flex flex-col items-center justify-center text-white"
+  >
+    <!-- VIDEO AREA -->
+    <div
+      class="relative w-full max-w-6xl h-[80vh] rounded-2xl overflow-hidden bg-black shadow-2xl"
+    >
+      <video
+        id="remoteVideo"
+        class="absolute inset-0 w-full h-full object-cover"
+        autoplay
+        playsinline
+      ></video>
+      <video
+        id="localVideo"
+        class="absolute bottom-4 right-4 w-48 h-32 rounded-xl border-2 border-indigo-500 pulse-ring"
+        autoplay
+        muted
+        playsinline
+      ></video>
+    </div>
+
+    <!-- CONTROLS -->
+    <div class="mt-6 flex gap-6">
+      <button
+        id="cameraButton"
+        class="w-14 h-14 rounded-full bg-indigo-600 hover:bg-indigo-500 transition"
+      >
+        📷
+      </button>
+      <button
+        id="micButton"
+        class="w-14 h-14 rounded-full bg-rose-600 hover:bg-rose-500 transition"
+      >
+        🎤
+      </button>
+    </div>
+
+    <!-- SOCKET.IO -->
+    <script src="/socket.io/socket.io.js"></script>
+
+    <script>
+      /**************** STEP 0: SOCKET CONNECTION ****************/
+      const socket = io();
+
+      /**************** STEP 1: DOM ELEMENTS ****************/
+      const localVideo = document.getElementById("localVideo");
+      const remoteVideo = document.getElementById("remoteVideo");
+      const cameraButton = document.getElementById("cameraButton");
+      const micButton = document.getElementById("micButton");
+
+      let localStream;
+      let peerConnection;
+      let isCameraOn = true;
+      let isMicOn = true;
+
+      /**************** STEP 2: ICE CONFIG ****************/
+      const rtcConfig = {
+        iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+      };
+
+      /**************** STEP 3: GET USER MEDIA ****************/
+      async function initMedia() {
+        localStream = await navigator.mediaDevices.getUserMedia({
+          audio: {
+            echoCancellation: false,
+            noiseSuppression: false,
+            autoGainControl: false,
+          },
+          video: true,
+        });
+
+        console.log(
+          "Audio tracks:",
+          localStream.getAudioTracks().map((t) => t.enabled)
+        );
+
+        localVideo.srcObject = localStream;
+      }
+
+      /**************** STEP 4: CREATE PEER CONNECTION ****************/
+      function createPeer() {
+        peerConnection = new RTCPeerConnection(rtcConfig);
+
+        localStream
+          .getTracks()
+          .forEach((track) => peerConnection.addTrack(track, localStream));
+
+        peerConnection.ontrack = (e) => {
+          remoteVideo.srcObject = e.streams[0];
+        };
+
+        peerConnection.onicecandidate = (e) => {
+          if (e.candidate) socket.emit("ice-candidate", e.candidate);
+        };
+      }
+
+      /**************** STEP 5: CALLER → CREATE OFFER ****************/
+      async function createOffer() {
+        const offer = await peerConnection.createOffer({
+          offerToReceiveAudio: true,
+          offerToReceiveVideo: true,
+        });
+
+        await peerConnection.setLocalDescription(offer);
+        socket.emit("offer", offer);
+
+        console.log("Offer sent with audio + video");
+      }
+
+      /**************** STEP 6: CALLEE → HANDLE OFFER ****************/
+      socket.on("offer", async (offer) => {
+        await peerConnection.setRemoteDescription(offer);
+        const answer = await peerConnection.createAnswer();
+        await peerConnection.setLocalDescription(answer);
+        socket.emit("answer", answer);
+      });
+
+      /**************** STEP 7: CALLER → HANDLE ANSWER ****************/
+      socket.on("answer", async (answer) => {
+        await peerConnection.setRemoteDescription(answer);
+      });
+
+      /**************** STEP 8: BOTH → ICE CANDIDATES ****************/
+      socket.on("ice-candidate", async (candidate) => {
+        await peerConnection.addIceCandidate(candidate);
+      });
+
+      /**************** STEP 9: UI CONTROLS ****************/
+      cameraButton.onclick = () => {
+        isCameraOn = !isCameraOn;
+        localStream.getVideoTracks()[0].enabled = isCameraOn;
+        cameraButton.classList.toggle("bg-gray-600");
+      };
+
+      micButton.onclick = () => {
+        isMicOn = !isMicOn;
+        localStream.getAudioTracks()[0].enabled = isMicOn;
+        micButton.classList.toggle("bg-gray-600");
+      };
+
+      /**************** STEP 10: APP START FLOW ****************/
+      (async () => {
+        await initMedia(); // 1️⃣ Camera/Mic
+        createPeer(); // 2️⃣ RTCPeerConnection
+        socket.emit("ready"); // 3️⃣ Notify backend
+      })();
+
+      /**************** STEP 11: ONLY FIRST USER CREATES OFFER ****************/
+      socket.on("start-call", () => {
+        createOffer();
+      });
+    </script>
+  </body>
+</html>
